@@ -1,0 +1,181 @@
+/* ===== GLOBAL STYLES ===== */
+body {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #ffd769, #ff6f61);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* ===== QUIZ CONTAINER ===== */
+.quiz-container {
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.5s;
+}
+
+/* ===== HEADER ===== */
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+header .mario {
+    width: 60px;
+}
+
+header .flipped {
+    transform: scaleX(-1);
+}
+
+/* ===== QUESTION META ===== */
+.question-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.category {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.difficulty {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+/* ===== QUESTION TEXT ===== */
+.question-text {
+    font-size: 1.5rem;
+    margin: 20px 0;
+}
+
+/* ===== OPTIONS GRID ===== */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.option-btn {
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: linear-gradient(145deg, #e0e0e0, #f5f5f5);
+    text-align: left;
+    transition: all 0.3s;
+}
+
+.option-btn:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.option-btn.selected {
+    border: 2px solid #ffd700;
+}
+
+.option-btn.correct-answer {
+    background-color: #2cb65a !important;
+    color: #fff;
+}
+
+/* ===== FEEDBACK MESSAGES ===== */
+.feedback {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    min-height: 24px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.feedback.correct {
+    color: green;
+}
+
+.feedback.wrong {
+    color: red;
+}
+
+/* ===== CONTROLS ===== */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.timer {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.submit-btn {
+    padding: 10px 20px;
+    background: #2cb65a;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.submit-btn:hover {
+    filter: brightness(90%);
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar {
+    width: 100%;
+    background: #eee;
+    height: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.progress {
+    background: #2cb65a;
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s;
+}
+
+/* ===== FINAL SCORE SCREEN ===== */
+.final-score {
+    text-align: center;
+    animation: fadeIn 0.5s;
+}
+
+.final-score h2 {
+    margin-bottom: 10px;
+}
+
+.final-score ol {
+    text-align: left;
+    max-width: 200px;
+    margin: 0 auto 15px auto;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
