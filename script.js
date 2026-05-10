@@ -23,9 +23,13 @@ function shuffleArray(arr) {
     return arr;
 }
 
-async function fetchQuestions() {
+async function fetchQuestions(amount = 20) {
     try {
-        const res = await fetch("https://opentdb.com/api.php?amount=50"), data = await res.json();
+        // Clear content and show dynamic loader
+        document.getElementById("quiz-content").innerHTML = `<div class="loader">🔄 Preparing ${amount} questions...</div>`;
+        
+        const res = await fetch(`https://opentdb.com/api.php?amount=${amount}`);
+        const data = await res.json();
 
         if (data.response_code !== 0) throw new Error(`API issues, response code: ${data.response_code}`);
         state.questions = data.results.map(q => ({
@@ -186,4 +190,32 @@ function renderFinalScore() {
     `;
 }
 
-fetchQuestions(); // Initialize Game
+function renderMainMenu() {
+    document.getElementById("quiz-content").innerHTML = `
+        <div class="main-menu">
+            <h2 class="menu-title">Ready to play?</h2>
+            <p class="menu-subtitle">Customize your challenge length below</p>
+            
+            <div class="range-container">
+                <input type="range" id="question-count" min="5" max="50" step="5" value="10" class="custom-range">
+                <div class="count-badge"><span id="count-val">10</span> Questions</div>
+            </div>
+
+            <button id="start-btn" class="submit-btn" style="width: 100%; margin-top: 30px;">Start Quiz</button>
+        </div>
+    `;
+
+    const countSlider = document.getElementById("question-count");
+    const countVal = document.getElementById("count-val");
+    
+    countSlider.addEventListener("input", (e) => {
+        countVal.textContent = e.target.value;
+    });
+
+    document.getElementById("start-btn").addEventListener("click", () => {
+        const num = parseInt(countSlider.value, 10) || 10;
+        fetchQuestions(num);
+    });
+}
+
+renderMainMenu(); // Bootstrap the initial view
