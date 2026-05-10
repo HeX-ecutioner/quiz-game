@@ -88,8 +88,19 @@ header .flipped {
 }
 
 .option-btn.correct-answer {
-    background-color: #2cb65a !important;
+    background: #2cb65a !important;
     color: #fff;
+    border-color: #2cb65a;
+}
+
+.option-btn.wrong-answer {
+    background: #ff4d4d !important;
+    color: #fff;
+    border-color: #ff4d4d;
+}
+
+.option-btn:disabled {
+    cursor: not-allowed;
 }
 
 /* ===== FEEDBACK MESSAGES ===== */
@@ -97,17 +108,17 @@ header .flipped {
     margin-top: 10px;
     font-size: 1.2rem;
     font-weight: bold;
-    min-height: 24px;
+    min-height: 28px;
     text-align: center;
     transition: all 0.3s;
 }
 
 .feedback.correct {
-    color: green;
+    color: #2cb65a;
 }
 
 .feedback.wrong {
-    color: red;
+    color: #ff4d4d;
 }
 
 /* ===== CONTROLS ===== */
@@ -131,10 +142,16 @@ header .flipped {
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
+    font-weight: bold;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
     filter: brightness(90%);
+}
+
+.submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 /* ===== PROGRESS BAR ===== */
