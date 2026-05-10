@@ -1,198 +1,568 @@
-/* ===== GLOBAL STYLES ===== */
-body {
+:root {
+    --primary: #4776E6;
+    --secondary: #8E54E9;
+    --accent: #FFD700;
+    --success: #00E676;
+    --danger: #FF1744;
+    --glass-bg: rgba(25, 28, 45, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text: #FFFFFF;
+    --text-dim: rgba(255, 255, 255, 0.7);
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
-    font-family: 'Courier New', monospace;
-    background: linear-gradient(135deg, #ffd769, #ff6f61);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 0;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #0b0f19;
+    background-image:
+        radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225, 39%, 25%, 1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339, 49%, 25%, 1) 0, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(339, 49%, 25%, 1) 0, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(225, 39%, 25%, 1) 0, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text);
     height: 100vh;
-}
-
-/* ===== QUIZ CONTAINER ===== */
-.quiz-container {
-    background: #fff;
-    padding: 20px 25px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 700px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.5s;
-}
-
-/* ===== HEADER ===== */
-header {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
+    overflow: hidden;
+    position: relative;
 }
 
-header .mario {
-    width: 60px;
-}
-
-header .flipped {
-    transform: scaleX(-1);
-}
-
-/* ===== QUESTION META ===== */
-.question-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.category {
-    font-weight: bold;
-    font-size: 1.1rem;
-}
-
-.difficulty {
-    width: 50px;
-    height: 50px;
+/* Animated ambient glowing spheres behind content */
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    width: 40vw;
+    height: 40vw;
     border-radius: 50%;
+    filter: blur(120px);
+    z-index: -1;
+    opacity: 0.35;
+    animation: floatBlobs 20s infinite alternate ease-in-out;
 }
 
-/* ===== QUESTION TEXT ===== */
-.question-text {
-    font-size: 1.5rem;
-    margin: 20px 0;
+body::before {
+    background: var(--primary);
+    top: -10%;
+    left: -10%;
 }
 
-/* ===== OPTIONS GRID ===== */
-.options-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+body::after {
+    background: var(--secondary);
+    bottom: -10%;
+    right: -10%;
+    animation-delay: -10s;
 }
 
-.option-btn {
-    padding: 12px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    background: linear-gradient(145deg, #e0e0e0, #f5f5f5);
-    text-align: left;
-    transition: all 0.3s;
+@keyframes floatBlobs {
+    0% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+
+    100% {
+        transform: translate(100px, 50px) rotate(90deg) scale(1.2);
+    }
 }
 
-.option-btn:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.option-btn.selected {
-    border: 2px solid #ffd700;
-}
-
-.option-btn.correct-answer {
-    background: #2cb65a !important;
-    color: #fff;
-    border-color: #2cb65a;
-}
-
-.option-btn.wrong-answer {
-    background: #ff4d4d !important;
-    color: #fff;
-    border-color: #ff4d4d;
-}
-
-.option-btn:disabled {
-    cursor: not-allowed;
-}
-
-/* ===== FEEDBACK MESSAGES ===== */
-.feedback {
-    margin-top: 10px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    min-height: 28px;
-    text-align: center;
-    transition: all 0.3s;
-}
-
-.feedback.correct {
-    color: #2cb65a;
-}
-
-.feedback.wrong {
-    color: #ff4d4d;
-}
-
-/* ===== CONTROLS ===== */
-.controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-}
-
-.timer {
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.submit-btn {
-    padding: 10px 20px;
-    background: #2cb65a;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-weight: bold;
-}
-
-.submit-btn:hover:not(:disabled) {
-    filter: brightness(90%);
-}
-
-.submit-btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* ===== PROGRESS BAR ===== */
-.progress-bar {
+/* Dynamic Quiz Card Wrapper */
+#app {
     width: 100%;
-    background: #eee;
-    height: 10px;
-    border-radius: 5px;
-    margin-top: 20px;
+    max-width: 850px;
+    padding: 20px;
+    perspective: 1000px;
 }
 
-.progress {
-    background: #2cb65a;
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.3s;
+.quiz-container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    padding: clamp(25px, 5vw, 45px);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5),
+        inset 0 0 40px rgba(255, 255, 255, 0.02);
+    animation: containerEntrance 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
 }
 
-/* ===== FINAL SCORE SCREEN ===== */
-.final-score {
-    text-align: center;
-    animation: fadeIn 0.5s;
-}
-
-.final-score h2 {
-    margin-bottom: 10px;
-}
-
-.final-score ol {
-    text-align: left;
-    max-width: 200px;
-    margin: 0 auto 15px auto;
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes fadeIn {
+@keyframes containerEntrance {
     from {
         opacity: 0;
+        transform: translateY(50px) scale(0.95);
     }
 
     to {
         opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Game Header Style */
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+}
+
+header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    background: linear-gradient(to bottom, #ffffff 30%, #cccccc 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.mario {
+    width: 60px;
+    height: auto;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.4));
+    animation: marioBounce 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes marioBounce {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-12px) scale(1.05);
+    }
+}
+
+/* Specialize reverse animation to respect the scaleX flip */
+@keyframes marioBounceFlipped {
+    from {
+        transform: scaleX(-1) translateY(0);
+    }
+
+    to {
+        transform: scaleX(-1) translateY(-12px) scale(1.05);
+    }
+}
+
+header .mario.flipped {
+    animation: marioBounceFlipped 1.5s infinite alternate ease-in-out;
+    animation-delay: 0.75s;
+}
+
+/* Category Badge & Difficulty Indicator Row */
+.question-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.category {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    color: #bde0fe;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 8px 18px;
+    border-radius: 30px;
+    border: 1px solid rgba(189, 224, 254, 0.2);
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.03);
+}
+
+.difficulty-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 6px 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.difficulty-badge.diff-easy {
+    background: rgba(0, 230, 118, 0.1);
+    color: #00E676;
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    box-shadow: 0 0 15px rgba(0, 230, 118, 0.15);
+}
+
+.difficulty-badge.diff-medium {
+    background: rgba(255, 165, 0, 0.1);
+    color: #FFA500;
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.15);
+}
+
+.difficulty-badge.diff-hard {
+    background: rgba(255, 23, 68, 0.1);
+    color: #FF1744;
+    border: 1px solid rgba(255, 23, 68, 0.3);
+    box-shadow: 0 0 15px rgba(255, 23, 68, 0.15);
+}
+
+.difficulty-badge:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.2);
+}
+
+/* Question Title Styling */
+.question-text {
+    font-size: clamp(1.1rem, 2.8vw, 1.45rem);
+    line-height: 1.4;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    padding: 0 10px;
+}
+
+/* Neon/Glass Options Grid */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.option-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 16px 20px;
+    color: #d4d4d4;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+}
+
+.option-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-4px);
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3),
+        inset 0 0 20px rgba(255, 255, 255, 0.02);
+}
+
+.option-btn:active:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.option-btn.selected {
+    background: rgba(71, 118, 230, 0.15);
+    border: 2px solid var(--primary);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 0 30px rgba(71, 118, 230, 0.3);
+}
+
+.option-btn.correct-answer {
+    background: linear-gradient(135deg, #00E676, #00C853) !important;
+    color: #062a18 !important;
+    border-color: #00E676 !important;
+    box-shadow: 0 0 35px rgba(0, 230, 118, 0.6) !important;
+    font-weight: 700;
+    transform: scale(1.02);
+    z-index: 2;
+}
+
+.option-btn.wrong-answer {
+    background: linear-gradient(135deg, #FF1744, #D50000) !important;
+    color: #ffffff !important;
+    border-color: #FF1744 !important;
+    box-shadow: 0 0 30px rgba(255, 23, 68, 0.5) !important;
+}
+
+.option-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.option-btn.correct-answer:disabled,
+.option-btn.wrong-answer:disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+/* Status/Feedback Area */
+.feedback {
+    height: 24px;
+    margin: 10px 0;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.4s ease;
+}
+
+.feedback.correct {
+    color: var(--success);
+    text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+}
+
+.feedback.wrong {
+    color: #ff5c5c;
+    text-shadow: 0 0 10px rgba(255, 92, 92, 0.3);
+}
+
+/* Footer Controls and HUD */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+}
+
+.timer {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--accent);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 36px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 20px rgba(71, 118, 230, 0.4);
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(71, 118, 230, 0.6);
+    filter: brightness(1.1);
+}
+
+.submit-btn:active:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* Sleek Glowing Progress Bar */
+.progress-bar {
+    margin-top: 25px;
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
+    background-size: 200% auto;
+    border-radius: 20px;
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: linearGradientMove 3s linear infinite;
+    box-shadow: 0 0 15px rgba(71, 118, 230, 0.6);
+}
+
+@keyframes linearGradientMove {
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* Final Score Display Layout */
+.final-score {
+    text-align: center;
+    animation: popIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    padding: 20px 0;
+}
+
+.final-score h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3rem);
+    font-weight: 800;
+    background: linear-gradient(to bottom, #FFD700, #FFA500);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 5px 15px rgba(255, 215, 0, 0.3));
+}
+
+.final-score p {
+    font-size: 1.5rem;
+    margin: 20px 0;
+    color: #e0e0e0;
+}
+
+.final-score h3 {
+    margin-top: 35px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 3px;
+}
+
+.final-score ol {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 25px 50px;
+    margin: 25px auto;
+    max-width: 320px;
+    text-align: left;
+    box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.final-score ol li {
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.final-score ol li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.final-score ol li::marker {
+    color: var(--primary);
+    font-weight: 800;
+}
+
+/* Animations Core */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.7) translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Custom styles for loader rendered from index/JS */
+.loader {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.3rem !important;
+    background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0.6));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 50px 0 !important;
+    letter-spacing: 1px;
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(0.98);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Mobile Responsibility refinement */
+@media (max-width: 600px) {
+    .quiz-container {
+        padding: 25px 18px;
+        border-radius: 20px;
+    }
+
+    header {
+        gap: 12px;
+    }
+
+    .mario {
+        width: 40px;
+    }
+
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .controls {
+        flex-direction: column-reverse;
+        gap: 20px;
+        align-items: stretch;
+    }
+
+    .timer {
+        justify-content: center;
     }
 }

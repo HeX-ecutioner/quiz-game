@@ -1,5 +1,4 @@
-// ===== GLOBAL STATE =====
-const state = {
+const state = { // Global state to store quiz data
     questions: [],
     currentIndex: 0,
     score: 0,
@@ -10,8 +9,7 @@ const state = {
     highscores: JSON.parse(localStorage.getItem("highscores") || "[]")
 };
 
-// ===== UTILITY FUNCTIONS =====
-function decodeHTML(html) {
+function decodeHTML(html) { // Utility function to decode HTML entities
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
     return txt.value;
@@ -25,16 +23,11 @@ function shuffleArray(arr) {
     return arr;
 }
 
-// ===== API FETCH =====
 async function fetchQuestions() {
     try {
-        const res = await fetch("https://opentdb.com/api.php?amount=50");
-        const data = await res.json();
-        
-        if (data.response_code !== 0) {
-            throw new Error(`API issues, response code: ${data.response_code}`);
-        }
+        const res = await fetch("https://opentdb.com/api.php?amount=50"), data = await res.json();
 
+        if (data.response_code !== 0) throw new Error(`API issues, response code: ${data.response_code}`);
         state.questions = data.results.map(q => ({
             category: q.category, // Keep pre-encoded
             question: q.question, // Keep pre-encoded to prevent rendering glitches
@@ -43,9 +36,7 @@ async function fetchQuestions() {
             difficulty: q.difficulty
         }));
 
-        if (state.questions.length === 0) {
-            throw new Error("Zero questions returned by the API.");
-        }
+        if (state.questions.length === 0) throw new Error("Zero questions returned by the API.");
 
         renderQuestion();
     } catch (e) {
@@ -58,7 +49,6 @@ async function fetchQuestions() {
     }
 }
 
-// ===== TIMER =====
 function startTimer() {
     let timeLeft = state.timePerQuestion;
     const timerEl = document.getElementById("timer");
@@ -73,12 +63,11 @@ function startTimer() {
     }, 1000);
 }
 
-// ===== RENDER QUESTION =====
 function renderQuestion() {
     clearInterval(state.timer);
     state.selectedOption = null;
     const q = state.questions[state.currentIndex];
-    
+
     // Render the pre-encoded option directly, the browser auto-decodes it safely!
     const optionsHTML = q.options.map((opt, i) =>
         `<button class="option-btn" data-index="${i}">${opt}</button>`
@@ -88,7 +77,7 @@ function renderQuestion() {
     document.getElementById("quiz-content").innerHTML = `
         <div class="question-meta">
             <span class="category">${q.category}</span>
-            <img src="images/${q.difficulty}.jpg" class="difficulty" alt="${q.difficulty} difficulty">
+            <span class="difficulty-badge diff-${q.difficulty}">${q.difficulty}</span>
         </div>
         <h2 class="question-text">${q.question}</h2>
         <div id="options" class="options-grid">
@@ -104,72 +93,54 @@ function renderQuestion() {
         </div>
     `;
 
-    // Add option click listeners
-    document.querySelectorAll(".option-btn").forEach(btn => {
+    document.querySelectorAll(".option-btn").forEach(btn => { // Add option click listeners
         btn.addEventListener("click", () => {
             state.selectedOption = btn.textContent;
             document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
             btn.classList.add("selected");
-            
-            // Unlock the submit button once selection is made!
-            const submitBtn = document.getElementById("submit-btn");
+
+            const submitBtn = document.getElementById("submit-btn"); // Unlock the submit button once selection is made!
             if (submitBtn) submitBtn.disabled = false;
         });
     });
 
-    // Add submit button listener
-    const submitBtn = document.getElementById("submit-btn");
-    if (submitBtn) {
-        submitBtn.addEventListener("click", () => handleSubmit(false));
-    }
-
+    const submitBtn = document.getElementById("submit-btn"); // Add submit button listener
+    if (submitBtn) submitBtn.addEventListener("click", () => handleSubmit(false));
     startTimer();
 }
 
-// ===== HANDLE SUBMIT =====
 function handleSubmit(timeout) {
-    // Race-condition safeguard
-    if (state.isSubmitting) return;
+    if (state.isSubmitting) return; // Race-condition safeguard
     state.isSubmitting = true;
 
     clearInterval(state.timer);
     const q = state.questions[state.currentIndex];
     const feedbackEl = document.getElementById("feedback");
     const correctAnswer = decodeHTML(q.correct);
-    
-    let message = "";
-    let isCorrect = false;
 
-    if (timeout) {
-        message = `⏳ Time's up! Correct answer: ${correctAnswer}`;
-    } else if (state.selectedOption === correctAnswer) {
+    let message = "", isCorrect = false;
+
+    if (timeout) message = `⏳ Time's up! Correct answer: ${correctAnswer}`;
+    else if (state.selectedOption === correctAnswer) {
         isCorrect = true;
         message = `✅ Correct!`;
         state.score += getScoreByDifficulty(q.difficulty);
-    } else {
-        message = `❌ Wrong! Correct answer: ${correctAnswer}`;
-    }
+    } else message = `❌ Wrong! Correct answer: ${correctAnswer}`;
 
     feedbackEl.textContent = message;
     feedbackEl.classList.remove("correct", "wrong");
     feedbackEl.classList.add(isCorrect ? "correct" : "wrong");
 
-    // Disable user input completely during delay period
     const submitBtn = document.getElementById("submit-btn");
-    if (submitBtn) submitBtn.disabled = true;
+    if (submitBtn) submitBtn.disabled = true; // Disable user input completely during delay period
     document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
 
-    // Visual feedback
-    highlightCorrectAnswer();
-    
-    // Colorize the user's selection as red if they chose wrong
-    document.querySelectorAll(".option-btn").forEach(btn => {
-        if (btn.classList.contains("selected") && btn.textContent !== correctAnswer) {
-            btn.classList.add("wrong-answer");
-        }
+    highlightCorrectAnswer(); // Visual feedback
+
+    document.querySelectorAll(".option-btn").forEach(btn => { // Colorize the user's selection as red if they chose wrong
+        if (btn.classList.contains("selected") && btn.textContent !== correctAnswer) btn.classList.add("wrong-answer");
     });
 
-    // Move to next question after 2 seconds
     setTimeout(() => {
         state.isSubmitting = false; // Clear block for next lifecycle
         state.currentIndex++;
@@ -181,7 +152,6 @@ function handleSubmit(timeout) {
     }, 2000);
 }
 
-// ===== HIGHLIGHT CORRECT ANSWER =====
 function highlightCorrectAnswer() {
     const q = state.questions[state.currentIndex];
     const correctAnswer = decodeHTML(q.correct);
@@ -190,7 +160,6 @@ function highlightCorrectAnswer() {
     });
 }
 
-// ===== SCORING SYSTEM =====
 function getScoreByDifficulty(diff) {
     switch (diff) {
         case "easy": return 10;
@@ -200,7 +169,6 @@ function getScoreByDifficulty(diff) {
     }
 }
 
-// ===== FINAL SCORE =====
 function renderFinalScore() {
     state.highscores.push(state.score);
     state.highscores.sort((a, b) => b - a);
@@ -210,13 +178,12 @@ function renderFinalScore() {
     document.getElementById("quiz-content").innerHTML = `
         <div class="final-score">
             <h2>🏁 Quiz Finished!</h2>
-            <p style="margin: 15px 0; font-size: 1.2rem; font-weight:bold;">Your Score: ${state.score}</p>
-            <h3>Highscores:</h3>
-            <ol style="margin-bottom:20px;">${state.highscores.map(s => `<li>${s}</li>`).join("")}</ol>
-            <button class="submit-btn" style="width: 100%; display:block;" onclick="location.reload()">Play Again</button>
+            <p>Your Score: <strong>${state.score}</strong></p>
+            <h3>Highscores</h3>
+            <ol>${state.highscores.map(s => `<li>${s}</li>`).join("")}</ol>
+            <button class="submit-btn" style="width: 100%; margin-top: 15px;" onclick="location.reload()">Play Again</button>
         </div>
     `;
 }
 
-// ===== INITIALIZE GAME =====
-fetchQuestions();
+fetchQuestions(); // Initialize Game
